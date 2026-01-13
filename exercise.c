@@ -106,7 +106,7 @@ int match_add(char *cmd, int arg) {
  * Return SUCC (namely 1) if successful, otherwise FAIL (namely 0)
  *      If input rec is NULL or the function pointer is NULL, return FAIL
  */
-int set_key_action(struct key_action *rec, char *cmd, int (*f)()){
+int set_key_action(struct key_action *rec, char *cmd, int (*f)(int)){
   if(rec!=NULL && f!=NULL) {
     rec->cmd=cmd;
     rec->func=f;

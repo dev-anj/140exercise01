@@ -132,22 +132,23 @@ char *set_key_action_test(void){
  * If failed, return a message string showing the failed point
  * If successful, return NULL 
  */
-struct key_action map[] = {
-  { "del1", del1 },
-  { "del2", del2 },
-  { 0, 0 }
-};
-
 char *match_action_test(void){
+  // Create a local map to avoid global variable issues
+  struct key_action local_map[] = {
+    { "del1", del1 },
+    { "del2", del2 },
+    { 0, 0 }
+  };
+  
   // Normal cases
-  mu_assert("match_action failed for del1", match_action(map, "del1", 5) == del1(5));
-  mu_assert("match_action failed for del2", match_action(map, "del2", 5) == del2(5));
+  mu_assert("match_action failed for del1", match_action(local_map, "del1", 5) == del1(5));
+  mu_assert("match_action failed for del2", match_action(local_map, "del2", 5) == del2(5));
 
   // Invalid command: should return original arg
-  mu_assert("match_action failed for unknown command", match_action(map, "del3", 10) == 10);
+  mu_assert("match_action failed for unknown command", match_action(local_map, "del3", 10) == 10);
 
   // Edge case: NULL command
-  mu_assert("match_action failed for NULL command", match_action(map, NULL, 7) == 7);
+  mu_assert("match_action failed for NULL command", match_action(local_map, NULL, 7) == 7);
 
   // Edge case: NULL map
   mu_assert("match_action failed for NULL map", match_action(NULL, "del1", 3) == 3);
