@@ -139,9 +139,15 @@ int set_key_action(struct key_action *rec, char *cmd, int (*f)()){
 
 int match_action(struct key_action map[], char *cmd, int arg) {
     if (map == NULL || cmd == NULL) return arg;
-    for (int i = 0; map[i].cmd != NULL; i++) {
-        if (strcmp(map[i].cmd, cmd) == 0 && map[i].func != NULL)
+    for (int i = 0; ; i++) {
+        // Check if we've reached the end of the map
+        if (map[i].cmd == NULL && map[i].func == NULL) {
+            break;
+        }
+        // Only proceed if cmd is not NULL
+        if (map[i].cmd != NULL && strcmp(map[i].cmd, cmd) == 0 && map[i].func != NULL) {
             return map[i].func(arg);
+        }
     }
     return arg; // no match
 }
