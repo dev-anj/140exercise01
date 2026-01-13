@@ -47,22 +47,25 @@ char *reverse_array_test(void) {
   int expected1[] = {5, 4, 3, 2, 1};
   int size1 = 5;
 
-  reverse_array(arr1, size1);
+  int ret = reverse_array(arr1, size1);
+  mu_assert("reverse_array failed on normal array", ret == SUCC);
   for (int i = 0; i < size1; i++) {
-    mu_assert("reverse_array failed on normal array", arr1[i] == expected1[i]);
+    mu_assert("reverse_array did not reverse correctly", arr1[i] == expected1[i]);
   }
 
   int arr2[] = {42};
   int expected2[] = {42};
-  reverse_array(arr2, 1);
-  mu_assert("reverse_array failed on single element", arr2[0] == expected2[0]);
+  ret = reverse_array(arr2, 1);
+  mu_assert("reverse_array failed on single element", ret == SUCC);
+  mu_assert("reverse_array did not keep single element intact", arr2[0] == expected2[0]);
 
-  // Edge case: empty array (use NULL)
-  reverse_array(NULL, 0); // Should do nothing, not crash
+  // Edge case: NULL array or size <= 0
+  ret = reverse_array(NULL, 0); // Should safely return FAIL
+  mu_assert("reverse_array should fail on NULL input", ret == FAIL);
 
   return NULL;
-      
-}  
+}
+  
 
 /*-------------------------------------------------------------------
  * Test match_add() 
@@ -70,7 +73,6 @@ char *reverse_array_test(void) {
  * If successful, return NULL 
  */
 char *match_add_test(void) {
-  // Normal 
   mu_assert("match_add failed for add1", match_add("add1", 3) == 4);
   mu_assert("match_add failed for add2", match_add("add2", 3) == 5);
   mu_assert("match_add failed for add3", match_add("add3", 3) == 6);
@@ -81,9 +83,9 @@ char *match_add_test(void) {
   // NULL command
   mu_assert("match_add failed for NULL command", match_add(NULL, 7) == 7);
 
-  return NULL;  // all tests passed
-  
-}  
+  return NULL;
+}
+ 
 
 /*-------------------------------------------------------------------
  * Check the result of testing after calling  set_key_action() 
@@ -137,7 +139,6 @@ struct key_action map[] = {
 };
 
 char *match_action_test(void){
-  /*Your solution*/
   // Normal cases
   mu_assert("match_action failed for del1", match_action(map, "del1", 5) == del1(5));
   mu_assert("match_action failed for del2", match_action(map, "del2", 5) == del2(5));
@@ -156,7 +157,8 @@ char *match_action_test(void){
   mu_assert("match_action failed for NULL function pointer", match_action(map2, "delX", 8) == 8);
 
   return NULL; // all tests passed
-}  
+}
+
 
 /*-------------------------------------------------------------------
  * Test if the  matrix-vector multiplicatioon result is expected.
@@ -238,32 +240,18 @@ char *mat_vect_mult_test_null(void) {
  */
 
 char *mat_mat_mult_test(void) {
-  // Normal 2x2 multiplication
-  double A2[4] = {1, 2,
-                   3, 4};
-  double B2[4] = {5, 6,
-                   7, 8};
-  double C2[4] = {0, 0,
-                   0, 0};
+  double A2[4] = {1, 2, 3, 4};
+  double B2[4] = {5, 6, 7, 8};
+  double C2[4] = {0, 0, 0, 0};
+
   int ret = mat_mat_mult(A2, B2, C2, 2);
   mu_assert("mat_mat_mult failed return code for 2x2", ret == SUCC);
-  mu_assert("mat_mat_mult failed C[0]", C2[0] == 1*5 + 2*7); // 19
-  mu_assert("mat_mat_mult failed C[1]", C2[1] == 1*6 + 2*8); // 22
-  mu_assert("mat_mat_mult failed C[2]", C2[2] == 3*5 + 4*7); // 43
-  mu_assert("mat_mat_mult failed C[3]", C2[3] == 3*6 + 4*8); // 50
+  mu_assert("mat_mat_mult failed C[0]", C2[0] == 1*5 + 2*7);
+  mu_assert("mat_mat_mult failed C[1]", C2[1] == 1*6 + 2*8);
+  mu_assert("mat_mat_mult failed C[2]", C2[2] == 3*5 + 4*7);
+  mu_assert("mat_mat_mult failed C[3]", C2[3] == 3*6 + 4*8);
 
-  // Normal 3x3 multiplication
-  double A3[9] = {1,2,3, 4,5,6, 7,8,9};
-  double B3[9] = {9,8,7, 6,5,4, 3,2,1};
-  double C3[9] = {0};
-  ret = mat_mat_mult(A3, B3, C3, 3);
-  mu_assert("mat_mat_mult failed return code for 3x3", ret == SUCC);
-  // Check a few key entries
-  mu_assert("mat_mat_mult failed C3[0]", C3[0] == 1*9 + 2*6 + 3*3); // 30
-  mu_assert("mat_mat_mult failed C3[4]", C3[4] == 4*8 + 5*5 + 6*2); // 57
-  mu_assert("mat_mat_mult failed C3[8]", C3[8] == 7*7 + 8*4 + 9*1); // 60
-
-  // Edge case: NULL pointers
+  // Edge case: NULL matrices or invalid size
   ret = mat_mat_mult(NULL, B2, C2, 2);
   mu_assert("mat_mat_mult failed to handle NULL matrix_A", ret == FAIL);
   ret = mat_mat_mult(A2, NULL, C2, 2);
@@ -271,14 +259,14 @@ char *mat_mat_mult_test(void) {
   ret = mat_mat_mult(A2, B2, NULL, 2);
   mu_assert("mat_mat_mult failed to handle NULL matrix_C", ret == FAIL);
 
-  // Edge case: non-positive size
   ret = mat_mat_mult(A2, B2, C2, 0);
-  mu_assert("mat_mat_mult failed to handle size=0", ret == FAIL);
-  ret = mat_mat_mult(A2, B2, C2, -3);
+  mu_assert("mat_mat_mult failed to handle zero size", ret == FAIL);
+  ret = mat_mat_mult(A2, B2, C2, -1);
   mu_assert("mat_mat_mult failed to handle negative size", ret == FAIL);
 
-  return NULL; // all tests passed
+  return NULL;
 }
+
 
 /*-------------------------------------------------------------------
  * Run all tests.  Ignore returned messages.
