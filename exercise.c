@@ -26,14 +26,15 @@
  */
 int exchange(int *a, int *b) {
   int tmp;
-  if (a == NULL || b == NULL ||a == b) {
+  if (a == NULL || b == NULL)
     return FAIL;
-  } 
+
   tmp = *a;
   *a = *b;
   *b = tmp;
   return SUCC;
 }
+
 
 /*-------------------------------------------------------------------
  *Function: reverse_array
