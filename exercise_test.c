@@ -173,7 +173,10 @@ char*  test_vect(double y[], int m, int n){
 #ifdef DEBUG1
     printf("Expected %f actual %f in mat_vect_mult\n", expected, y[i]); 
 #endif
-    mu_assert("Error in mat_vect_mult, one mismatch", y[i] ==expected); 
+    // Use epsilon comparison for floating point numbers
+    double diff = y[i] - expected;
+    if (diff < 0) diff = -diff; // absolute value
+    mu_assert("Error in mat_vect_mult, one mismatch", diff < 1e-9); 
   }
   return NULL;
 }
@@ -189,6 +192,15 @@ char* mat_vect_mult_test1(int m, int n) {
   double *A = malloc(m*n*sizeof(double));
   double *x = malloc(n*sizeof(double));
   double *y = malloc(m*sizeof(double));
+  
+  // Check if memory allocation succeeded
+  if (A == NULL || x == NULL || y == NULL) {
+    if (A) free(A);
+    if (x) free(x);
+    if (y) free(y);
+    return "Memory allocation failed in mat_vect_mult_test1";
+  }
+  
   for (j = 0; j < n; j++) {
     x[j]=j;
   }
@@ -227,9 +239,9 @@ char *mat_vect_mult_test_null(void) {
   double A=1; 
   int n=1;  
   int ret=mat_vect_mult(NULL, NULL, NULL, n, n);
-  mu_assert("Error in mat_mat_mult, NULL input", ret ==FAIL);
+  mu_assert("Error in mat_vect_mult, NULL input", ret ==FAIL);
   ret=mat_vect_mult(&A, &A, &A, 0, n);
-  mu_assert("Error in mat_mat_mult, NULL input", ret ==FAIL);
+  mu_assert("Error in mat_vect_mult, zero size", ret ==FAIL);
   return  NULL;
 }  
 
@@ -246,10 +258,17 @@ char *mat_mat_mult_test(void) {
 
   int ret = mat_mat_mult(A2, B2, C2, 2);
   mu_assert("mat_mat_mult failed return code for 2x2", ret == SUCC);
-  mu_assert("mat_mat_mult failed C[0]", C2[0] == 1*5 + 2*7);
-  mu_assert("mat_mat_mult failed C[1]", C2[1] == 1*6 + 2*8);
-  mu_assert("mat_mat_mult failed C[2]", C2[2] == 3*5 + 4*7);
-  mu_assert("mat_mat_mult failed C[3]", C2[3] == 3*6 + 4*8);
+  
+  // Use epsilon comparison for floating point numbers
+  double expected_C0 = 1*5 + 2*7;
+  double expected_C1 = 1*6 + 2*8;
+  double expected_C2 = 3*5 + 4*7;
+  double expected_C3 = 3*6 + 4*8;
+  
+  mu_assert("mat_mat_mult failed C[0]", (C2[0] - expected_C0) < 1e-9 && (C2[0] - expected_C0) > -1e-9);
+  mu_assert("mat_mat_mult failed C[1]", (C2[1] - expected_C1) < 1e-9 && (C2[1] - expected_C1) > -1e-9);
+  mu_assert("mat_mat_mult failed C[2]", (C2[2] - expected_C2) < 1e-9 && (C2[2] - expected_C2) > -1e-9);
+  mu_assert("mat_mat_mult failed C[3]", (C2[3] - expected_C3) < 1e-9 && (C2[3] - expected_C3) > -1e-9);
 
   // Edge case: NULL matrices or invalid size
   ret = mat_mat_mult(NULL, B2, C2, 2);
