@@ -118,14 +118,14 @@ int match_add(char *cmd, int arg){
  * Return SUCC (namely 1) if successful, otherwise FAIL (namely 0)
  *      If input rec is NULL or the function pointer is NULL, return FAIL
  */
-int set_key_action(struct key_action *rec, char *cmd, int (*f)(int)){
-  if(rec!=NULL && f!=NULL) {
-    rec->cmd=cmd;
-    rec->func=f;
+int set_key_action(struct key_action *rec, char *cmd, int (*f)()){
+    if (rec == NULL || f == NULL)
+        return FAIL;
+    rec->cmd = cmd;
+    rec->func = f;
     return SUCC;
-  }
-  return FAIL;
 }
+
 
 /*-------------------------------------------------------------------
  *Function: match_action
@@ -150,17 +150,16 @@ int set_key_action(struct key_action *rec, char *cmd, int (*f)(int)){
  */
 
 int match_action(struct key_action map[], char *cmd, int arg){
-  if (map == NULL || cmd == NULL) return arg;  // check invalid inputs
+    if (map == NULL || cmd == NULL) return arg;
 
-    for (int i = 0; map[i].cmd != NULL; i++) { // iterate until null-terminated
+    for (int i = 0; map[i].cmd != NULL; i++) {
         if (strcmp(map[i].cmd, cmd) == 0 && map[i].func != NULL) {
-            return map[i].func(arg);  // call the matched function
+            return map[i].func(arg);  // okay, old-style pointer call
         }
     }
-
-    // No match found
     return arg;
 }
+
 
 /*-------------------------------------------------------------------
  * Function:   mat_vect_mult

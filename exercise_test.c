@@ -110,18 +110,20 @@ int del2(int x){
   return x-2;
 }
 
-char * set_key_action_test(void){
-  char *key="del1";
-  int ret=set_key_action(NULL, key, del1);
-  mu_assert("Error in set_key_action with NULL value", ret == FAIL);
+char *set_key_action_test(void){
+    char *key = "del1";
+    int ret = set_key_action(NULL, key, del1);
+    mu_assert("set_key_action should fail on NULL rec", ret == FAIL);
 
-  struct key_action *rec = (struct key_action *) malloc(sizeof(struct key_action));
-  ret = set_key_action(rec, key, del1);
-  char *msg = check_key_action_return(key, del1, ret, rec);
-  free(rec);
-  /*All comparisons/tests are valid*/
-  return msg;
+    struct key_action rec;
+    ret = set_key_action(&rec, key, del1);
+    mu_assert("set_key_action failed on valid input", ret == SUCC);
+    mu_assert("key mismatch", strcmp(rec.cmd, key) == 0);
+    mu_assert("function mismatch", rec.func == del1);
+
+    return NULL;
 }
+
 
 /*-------------------------------------------------------------------
  * Test match_action() 
