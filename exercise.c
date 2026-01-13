@@ -25,14 +25,12 @@
  *
  */
 int exchange(int *a, int *b) {
-  int tmp;
-  if (a == NULL || b == NULL)
-    return FAIL;
-
-  tmp = *a;
-  *a = *b;
-  *b = tmp;
-  return SUCC;
+    if (a == NULL || b == NULL || a == b)
+        return FAIL;
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+    return SUCC;
 }
 
 
@@ -49,22 +47,18 @@ int exchange(int *a, int *b) {
  *  The above code leads a[0]=2 and a[1]=1.
  */
 int reverse_array(int a[], int size) {
-  if (a == NULL || size <= 0) {
-    return FAIL;
-  }
-
-  int left = 0;
-  int right = size - 1;
-  while (left < right) {
-    int tmp = a[left];
-    a[left] = a[right];
-    a[right] = tmp;
-    left++;
-    right--;
-  }
-  return SUCC;
+    if (a == NULL || size <= 0)
+        return FAIL;
+    int left = 0, right = size - 1;
+    while (left < right) {
+        int tmp = a[left];
+        a[left] = a[right];
+        a[right] = tmp;
+        left++;
+        right--;
+    }
+    return SUCC;
 }
-
 /*-------------------------------------------------------------------
  *Function: add1, add2, add3
  * Purpose: functions to increase a parameter  by  one, two, or three
@@ -92,20 +86,14 @@ int add3(int x){
  *                                  return the orignal value of input number arg.
  * Example:  match_add("add2", 3) returns 5.
  */
-int match_add(char *cmd, int arg){
-  if (cmd == NULL) return arg; 
+int match_add(char *cmd, int arg) {
+    if (cmd == NULL) return arg;
 
-  if (strcmp(cmd, "add1") == 0) {
-    return add1(arg);
-  } 
-  else if (strcmp(cmd, "add2") == 0) {
-    return add2(arg);
-  } 
-  else if (strcmp(cmd, "add3") == 0) {
-    return add3(arg);
-  } 
-  return arg;
+    if (strcmp(cmd, "add1") == 0) return add1(arg);
+    if (strcmp(cmd, "add2") == 0) return add2(arg);
+    if (strcmp(cmd, "add3") == 0) return add3(arg);
 
+    return arg; // no match
 }
 
 
@@ -119,13 +107,13 @@ int match_add(char *cmd, int arg){
  *      If input rec is NULL or the function pointer is NULL, return FAIL
  */
 int set_key_action(struct key_action *rec, char *cmd, int (*f)()){
-    if (rec == NULL || f == NULL)
-        return FAIL;
-    rec->cmd = cmd;
-    rec->func = f;
+  if(rec!=NULL && f!=NULL) {
+    rec->cmd=cmd;
+    rec->func=f;
     return SUCC;
+  }
+  return FAIL;
 }
-
 
 /*-------------------------------------------------------------------
  *Function: match_action
@@ -149,17 +137,14 @@ int set_key_action(struct key_action *rec, char *cmd, int (*f)()){
  *
  */
 
-int match_action(struct key_action map[], char *cmd, int arg){
+int match_action(struct key_action map[], char *cmd, int arg) {
     if (map == NULL || cmd == NULL) return arg;
-
     for (int i = 0; map[i].cmd != NULL; i++) {
-        if (strcmp(map[i].cmd, cmd) == 0 && map[i].func != NULL) {
-            return map[i].func(arg);  // okay, old-style pointer call
-        }
+        if (strcmp(map[i].cmd, cmd) == 0 && map[i].func != NULL)
+            return map[i].func(arg);
     }
-    return arg;
+    return arg; // no match
 }
-
 
 /*-------------------------------------------------------------------
  * Function:   mat_vect_mult
@@ -216,20 +201,18 @@ int mat_vect_mult(double  matrix_A[]  /* in  */,
   *        C[i][j]=C[i][j] + A[i][k]*B[k][j]
   */
 
-int mat_mat_mult(double * matrix_A, double * matrix_B, double * matrix_C, int matrix_size) {
-  if (matrix_A == NULL || matrix_B == NULL || matrix_C == NULL || matrix_size <= 0)
-        return FAIL;  // check invalid input
+int mat_mat_mult(double *matrix_A, double *matrix_B, double *matrix_C, int matrix_size) {
+    if (matrix_A == NULL || matrix_B == NULL || matrix_C == NULL || matrix_size <= 0)
+        return FAIL;
 
-    int i, j, k;
-    for (i = 0; i < matrix_size; i++) {
-        for (j = 0; j < matrix_size; j++) {
+    for (int i = 0; i < matrix_size; i++) {
+        for (int j = 0; j < matrix_size; j++) {
             double sum = 0.0;
-            for (k = 0; k < matrix_size; k++) {
+            for (int k = 0; k < matrix_size; k++) {
                 sum += matrix_A[i * matrix_size + k] * matrix_B[k * matrix_size + j];
             }
-            matrix_C[i * matrix_size + j] += sum;  // add to existing value
+            matrix_C[i * matrix_size + j] += sum;
         }
     }
-
     return SUCC;
 }
